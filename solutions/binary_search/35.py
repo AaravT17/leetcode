@@ -7,7 +7,7 @@ class Solution:
         l = 0
         r = len(nums) - 1
 
-        while l < r:
+        while l <= r:
             m = (l + r) // 2
             if nums[m] == target:
                 return m
@@ -16,5 +16,4 @@ class Solution:
             else:
                 r = m - 1
 
-        # l == r at this point
-        return l if nums[l] >= target else l + 1
+        return m if nums[m] >= target else m + 1
