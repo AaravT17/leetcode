@@ -5,9 +5,10 @@ class Solution:
 
         while l <= r:
             m = (l + r) // 2
-            if m * m == num:
+            m_squared = m * m
+            if m_squared == num:
                 return True
-            elif m * m < num:
+            elif m_squared < num:
                 l = m + 1
             else:
                 r = m - 1
