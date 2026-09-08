@@ -1,6 +1,7 @@
 .DS_Store
 .vscode/
+.claude/
 solutions/scotiabank_velocity_assessment_summer_2026/
 solutions/stripe_hackerrank_assessment_summer_2026/
 solutions/amazon_oa/
-solutions/scotiabank_velocity_assessment_fall_2026/
+solutions/stripe_oa_new_grad_2027/
