@@ -14,7 +14,7 @@ class Solution:
             # window is valid, check length and update longest if necessary
             longest = max(longest, r - l + 1)
         return longest
-        # Time: O(n), Space: O(n)
+        # Time: O(n), Space: O(1)
 
         # Approach 2
         # Key insight: We do not need to track the exact max freq in the current substring. It is sufficient to track
@@ -29,7 +29,7 @@ class Solution:
         # still accurately track the char freqs in the current substring, but this is a single increment/decrement 
         # each time we shrink/expand the window. The lazy update rule only applies to the max freq tracker, not to the
         # freqs of chars in the current substring. Essentially, the max freq tracker is an upper bound on the max freq
-        # for the current substring, and it was equal to the max freq for some substring up to this point.
+        # for the current substring, and it was equal to the max freq for some valid substring up to this point.
         # freqs = [0] * 26
         # l = 0
         # longest = 0
@@ -43,4 +43,4 @@ class Solution:
         #     longest = max(longest, r - l + 1)
         # return longest
         # Time: O(n), but the constant factor is reduced since we do not need to compute max(freqs) every time
-        # Space: O(n)
+        # Space: O(1)

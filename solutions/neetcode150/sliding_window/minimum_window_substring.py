@@ -1,45 +1,38 @@
 class Solution:
     def minWindow(self, s: str, t: str) -> str:
-        n, m = len(t), len(s)
-        if m < n:
-            return ""
+        m, n = len(t), len(s)
+        if m > n:
+            return ''
 
-        # maintain a hashmap of chars in both strings
-        # in s_set, only worry about counts of chars in t, the rest are irrelevant
-        s_set, t_set = {}, {}
-        distinct_chars = 0
+        # a valid window is one where freq in current window in s >= freq in t for every char in t
+        # we only care about freqs of chars that are in t, ignore chars not in t
+        t_freq, s_freq = {}, {}  # s_freq tracks freq of relevant chars in current substring/window in s
         for char in t:
-            if char not in t_set:
-                distinct_chars += 1
-            t_set[char] = 1 + t_set.get(char, 0)
+            t_freq[char] = t_freq.get(char, 0) + 1
 
-        min_window_len = m + 1  # longer than any possible valid window in s
-        min_window_start = 0
-        # track how many of the distinct chars in t are contained (with reqd. min count) in the current window in s
-        valid_chars = 0
+        matches, reqd_matches = 0, len(t_freq)
+        shortest, start = n + 1, 0
         l = 0
-        for r in range(m):
-            # expand the window to the right
-            if s[r] in t_set:
-                s_set[s[r]] = 1 + s_set.get(s[r], 0)
-                if s_set[s[r]] == t_set[s[r]]:  # we just hit the reqd. min count
-                    valid_chars += 1
-            while valid_chars == distinct_chars:
-                # check if the window is the shortest valid window
-                window_len = r - l + 1
-                if window_len < min_window_len:
-                    min_window_len = window_len
-                    min_window_start = l
-                # shrink the window
-                if s[l] in t_set:
-                    s_set[s[l]] -= 1  # if we are shrinking, then s[l] must be in s_set
-                    if s_set[s[l]] + 1 == t_set[s[l]]:
-                        # we just sunk below the reqd. min count
-                        valid_chars -= 1
+        for r in range(n):
+            if s[r] in t_freq:
+                # char is relevant
+                s_freq[s[r]] = s_freq.get(s[r], 0) + 1
+                # adding chars can only increase num matches
+                if s_freq[s[r]] == t_freq[s[r]]:
+                    matches += 1
+
+            while matches == reqd_matches:
+                # window is valid, update shortest (if reqd.) and shrink window
+                length = r - l + 1
+                if length < shortest:
+                    shortest, start = length, l
+                if s[l] in t_freq:
+                    s_freq[s[l]] -= 1
+                    # removing chars can only reduce num matches
+                    if s_freq[s[l]] + 1 == t_freq[s[l]]:
+                        matches -= 1
                 l += 1
 
-        if min_window_len > m:
-            return ""
-        return s[min_window_start : min_window_start + min_window_len]
-        # Time: O(m), Space: O(1) (<= 52 distinct characters (only uppercase and lowercase english letters),
-        # so <= 52 elements in each hashmap)
+        return s[start : start + shortest] if shortest <= n else ''
+        # Time: O(n)
+        # Space: O(1), since s, t consist of uppecase and lowercase english alphabets i.e. <= 52 distinct chars
