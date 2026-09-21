@@ -1,33 +1,21 @@
-from typing import Optional
-
-
 # Definition for singly-linked list.
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-
-
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
 class Solution:
     def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
-        # Idea: We want 2 pointers, AHEAD and BEHIND, such that when AHEAD gets
-        # to the end, BEHIND will be at the nth node from the end, to achieve
-        # this, we move AHEAD n positions ahead of BEHIND before then moving
-        # them in parallel (maintain a distance of n positions between them),
-        # actually, we want BEHIND to be in a position to skip over the nth node
-        # from the end, so we move AHEAD n + 1 positions ahead of BEHIND
-        # Cleaner implementation using a dummy node
+        # maintain a gap of n+1 between slow and fast ptrs (n+1 rather than n since we wanna remove the nth node 
+        # from the end so we need to be at the (n+1)th from the end to jump so we can jump over the nth)
         dummy = ListNode(next=head)
-        ahead = behind = dummy
+        slow = fast = dummy
         i = 0
         while i < n + 1:
-            ahead = ahead.next
+            fast = fast.next
             i += 1
-
-        while ahead:
-            behind, ahead = behind.next, ahead.next
-
-        behind.next = behind.next.next
-
+        
+        while fast:
+            slow, fast = slow.next, fast.next
+        
+        slow.next = slow.next.next
         return dummy.next
-        # Time: O(l), Space: O(1), where l is the length of the linked list
