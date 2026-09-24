@@ -2,30 +2,27 @@ from collections import deque
 
 
 # Definition for a binary tree node.
-# Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
 #         self.val = val
 #         self.left = left
 #         self.right = right
 class Solution:
-    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
-        # nodes in the right side view are the rightmost node at each level
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         if not root:
             return []
 
         res = []
         q = deque([root])
         while q:
-            rightmost = 0  # does not matter what we initialize it to, it will always be overwritten
+            level = []
             length = len(q)
             for i in range(length):
                 node = q.popleft()
-                # since we visit nodes left to right, each node visited is the new rightmost node on that level
-                rightmost = node.val
+                level.append(node.val)
                 if node.left:
                     q.append(node.left)
                 if node.right:
                     q.append(node.right)
-            res.append(rightmost)
+            res.append(level)
         return res
