@@ -1,32 +1,33 @@
-from typing import List
 import heapq
-from collections import Counter, deque
+from collections import deque
 
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
-        # schedule the task with the highest frequency earliest
-        freqs = Counter(tasks)
-        max_heap = []  # holds elements of the form (-freq, task)
-        q = deque()  # holds elements of the form (task, freq, next_runnable_at)
-        for task, freq in freqs.items():
-            heapq.heappush(max_heap, (-freq, task))
+        # use a max heap that stores runnable tasks sorted by count
+        # use a wait queue to add tasks back onto the heap once they become runnable
+        runnable_heap = []  # stores (-count, task)
+        wait_queue = deque()  # stores (next_runnable_at, -count, task)
+
+        task_count = {}
+        for task in tasks:
+            task_count[task] = task_count.get(task, 0) + 1
+
+        for task, count in task_count.items():
+            heapq.heappush(runnable_heap, (-count, task))
 
         t = 0
-        while max_heap or q:
-            # either we have tasks currently ready to run, or we have tasks on the queue that will run eventually
-            t += 1
-            if max_heap:
-                elem = heapq.heappop(max_heap)
-                if (
-                    elem[0] < -1
-                ):  # this task must be executed at least once more, add to queue
-                    q.append((elem[1], -elem[0] - 1, t + n))
-
-            if q and q[0][2] == t:
-                # only one task from the queue becomes runnable at a given time, so we need only check the first
-                # element in the queue
-                task, freq, next_runnable_at = q.popleft()
-                heapq.heappush(max_heap, (-freq, task))
-
+        while runnable_heap or wait_queue:
+            if runnable_heap:
+                count, task = heapq.heappop(runnable_heap)
+                t += 1
+                if count < -1:
+                    wait_queue.append((t + n, count + 1, task))
+                if wait_queue and wait_queue[0][0] == t:
+                    next_runnable_at, count, task = wait_queue.popleft()
+                    heapq.heappush(runnable_heap, (count, task))
+            else:
+                t = wait_queue[0][0]
+                next_runnable_at, count, task = wait_queue.popleft()
+                heapq.heappush(runnable_heap, (count, task))
         return t
