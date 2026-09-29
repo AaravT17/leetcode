@@ -1,46 +1,49 @@
-from typing import List
 from collections import deque
 
 
 class Solution:
     def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
-        # return the union of the set of points from where water can flow to the pacific and the set of points
-        # from where water can flow to the atlantic
-        pac_q, pac_seen = deque(), set()
-        atl_q, atl_seen = deque(), set()
         m, n = len(heights), len(heights[0])
 
-        for j in range(n):
-            pac_q.append((0, j))
-            pac_seen.add((0, j))
-        for i in range(1, m):
-            pac_q.append((i, 0))
-            pac_seen.add((i, 0))
+        def _get_reachable_coords(q: deque) -> set:
+            visited = set()
+            for i, j in q:
+                visited.add((i, j))
 
-        for j in range(n):
-            atl_q.append((m - 1, j))
-            atl_seen.add((m - 1, j))
-        for i in range(m - 1):
-            atl_q.append((i, n - 1))
-            atl_seen.add((i, n - 1))
-
-        def bfs(q: deque, seen: set):
             while q:
                 i, j = q.popleft()
-                for di, dj in [[0, 1], [1, 0], [0, -1], [-1, 0]]:
-                    new_i, new_j = i + di, j + dj
-                    if (
-                        0 <= new_i < m
-                        and 0 <= new_j < n
-                        and heights[new_i][new_j] >= heights[i][j]
-                        and (new_i, new_j) not in seen
-                    ):
+                for new_i, new_j in [[i - 1, j], [i + 1, j], [i, j - 1], [i, j + 1]]:
+                    if _can_flow(i, j, new_i, new_j) and (new_i, new_j) not in visited:
                         q.append((new_i, new_j))
-                        seen.add((new_i, new_j))
-            # once this function exits, seen consists of all points from where water can flow into the particular ocean
-            # for which the function was called
+                        visited.add((new_i, new_j))
 
-        bfs(pac_q, pac_seen)
-        bfs(atl_q, atl_seen)
-        return list(pac_seen.intersection(atl_seen))
-        # Time: O(mn), Space: O(mn)
+            return visited
+
+        def _can_flow(curr_i: int, curr_j: int, new_i: int, new_j: int) -> bool:
+            if new_i < 0 or new_i >= m or new_j < 0 or new_j >= n:
+                return False
+
+            return heights[curr_i][curr_j] <= heights[new_i][new_j]
+
+        q = deque()
+
+        # pacific
+        for i in range(m):
+            q.append((i, 0))
+        for j in range(n):
+            q.append((0, j))
+        pacific = _get_reachable_coords(q)
+        # q is empty after the function returns
+
+        # atlantic
+        for i in range(m):
+            q.append((i, n - 1))
+        for j in range(n):
+            q.append((m - 1, j))
+        atlantic = _get_reachable_coords(q)
+
+        res = []
+        for i, j in pacific:
+            if (i, j) in atlantic:
+                res.append([i, j])
+        return res
