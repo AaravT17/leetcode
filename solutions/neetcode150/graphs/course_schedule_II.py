@@ -1,43 +1,32 @@
-from typing import List
-
-
 class Solution:
     def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
-        # topological sort
-        # run DFS, once a course is visited completely, append to result, if at any point a cycle is detected, we
-        # cannot take all courses so return []
-
-        # construct adjacency list
-        adj_list = {u: [] for u in range(numCourses)}
-        for u, v in prerequisites:
-            adj_list[u].append(v)
+        neighbours = {course: [] for course in range(numCourses)}
+        for a, b in prerequisites:
+            neighbours[a].append(b)
 
         UNVISITED, VISITING, VISITED = 0, 1, 2
         status = [UNVISITED] * numCourses
         res = []
 
-        def dfs(u: int) -> bool:
-            # return True if we can finish this course, and False otherwise
-            if status[u] == VISITED:
-                return True
-            if status[u] == VISITING:
-                # we arrived back at this course while visiting it/seeing if we can finish it => cycle
-                return False
+        def dfs_visit(course: int) -> bool:
+            status[course] = VISITING
 
-            status[u] = VISITING
-
-            for v in adj_list[u]:
-                if not dfs(v):
+            for n in neighbours[course]:
+                if status[n] == VISITED:
+                    continue
+                if status[n] == VISITING:
+                    return False
+                if not dfs_visit(n):
                     return False
 
-            # we could complete all courses required to take this course, so we can take this course as well
-            status[u] = VISITED
-            res.append(u)
+            status[course] = VISITED
+            res.append(course)
             return True
 
-        for u in range(numCourses):
-            if not dfs(u):
-                return []
+        for course in range(numCourses):
+            if status[course] == UNVISITED:
+                if not dfs_visit(course):
+                    return []
 
         return res
-        # Time: O(n + m), Space: O(n + m) where n = numCourses, m = len(prerequisites)
+        # Time: O(n + m), Space: O(n + m), where n = numCourses, m = len(prerequisites)
