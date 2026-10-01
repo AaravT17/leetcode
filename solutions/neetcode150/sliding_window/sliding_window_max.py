@@ -3,8 +3,8 @@ from collections import deque
 
 class Solution:
     def maxSlidingWindow(self, nums: list[int], k: int) -> list[int]:
-        q = deque()
-        res = [] # stores indices such that nums[i] >= nums[i+1] (monotonic non-increasing)
+        q = deque()  # monotonic non-increasing queue
+        res = []
         for r in range(len(nums)):
             # r marks the end of the window, compute l (the start of the window)
             l = r - k + 1  # k (window length) = r - l + 1 => l = r - k + 1
